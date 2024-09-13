@@ -4,15 +4,16 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-opencv-python = "*"
+pytubefix = "*"
 torch = "*"
 torchvision = "*"
-pytube = "*"
-pytubefix = "*"
-retinaface = "*"
-facenet-pytorch = "*"
+torchaudio = "*"
+retinaface-pytorch = "*"
+retina-face = "*"
+tf-keras = "*"
+opencv-python = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.9"
+python_version = "3.12"
