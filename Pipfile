@@ -7,7 +7,10 @@ name = "pypi"
 opencv-python = "*"
 torch = "*"
 torchvision = "*"
-retina-face = "*"
+pytube = "*"
+pytubefix = "*"
+retinaface = "*"
+facenet-pytorch = "*"
 
 [dev-packages]
 
