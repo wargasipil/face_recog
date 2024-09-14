@@ -1,11 +1,12 @@
 import cv2
 import torch
 from torchvision import transforms
+import insightface
+from insightface.app import FaceAnalysis
 
-import os
+import time
 import argparse
 from threading import Thread
-import torch.backends.cudnn as cudnn
 import numpy as np
 from data import cfg_mnet, cfg_re50
 from layers.functions.prior_box import PriorBox
@@ -14,6 +15,7 @@ from utils.nms.py_cpu_nms import py_cpu_nms
 from models.retinaface import RetinaFace
 from utils.box_utils import decode, decode_landm
 import time
+
 
 
 parser = argparse.ArgumentParser(description='Retinaface')
@@ -174,6 +176,11 @@ def detect(img_raw):
     return img_raw
 
 
+# analisis
+# Initialize the ArcFace model
+facelis = insightface.model_zoo.get_model('arcface_r100_v1')
+facelis.prepare(ctx_id=-1)  # Use CPU. For GPU, use ctx_id=0
+
 
 class ThreadedCamera:
     def __init__(self, source = 0):
@@ -197,17 +204,28 @@ class ThreadedCamera:
             return self.frame
         return None  
 
-streamer = ThreadedCamera()
+streamer = ThreadedCamera("video.mp4")
+# streamer = cv2.VideoCapture("video.mp4")
 
 while True:
     frame = streamer.grab_frame()
-    # if not frame:
+    # ret, frame = streamer.read()
+    
+    # If frame was not read correctly, exit
+    # if not ret:
+    #     print("Can't receive frame (stream end?). Exiting ...")
     #     break
+    
+    # detect(frame)
+    # cv2.imshow('Face Detection', frame)    
+    
     if frame is not None:
         detect(frame)
-
-        # Display the frame with bounding boxes
         cv2.imshow('Face Detection', frame)
+    else:
+        print("frame error")
+        print(streamer.status)
+        time.sleep(1)
 
     # Break loop on 'q' key press
     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -215,4 +233,5 @@ while True:
 
 # Release resources
 streamer.capture.release()
+# streamer.release()
 cv2.destroyAllWindows()
