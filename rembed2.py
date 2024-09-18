@@ -64,11 +64,13 @@ def get_face_embedding_from_frame(model, frame):
 # Function to initialize the FAISS index (Flat L2 distance)
 def initialize_faiss_index(embedding_dim):
     index = faiss.IndexFlatL2(embedding_dim)  # L2 distance-based index
-    return index
+    index_with_ids = faiss.IndexIDMap(index)
+    return index_with_ids
 
 # Function to add embeddings to the FAISS index
 def add_embedding_to_faiss(index, embedding):
-    index.add(embedding)  # Add the embedding(s) to FAISS index
+    index.add_with_ids(embedding, 321)
+    # index.add(embedding)  # Add the embedding(s) to FAISS index
 
 # Function to search for similar faces in FAISS index
 def search_faiss(index, query_embedding, k=5):
@@ -85,13 +87,16 @@ def load_faiss_index(filename="face_embedding.index"):
     return index
 
 # Main function for registration and face recognition
+
+from faceindex import FaceIndex
+
 def main():
     # Initialize InsightFace model
     model = initialize_insightface_model()
 
     # Initialize FAISS index (embedding size is typically 512 for InsightFace)
     embedding_dim = 512
-    index = initialize_faiss_index(embedding_dim)
+    index = FaceIndex()
 
     # Step 1: Register faces via webcam
     while True:
@@ -100,13 +105,14 @@ def main():
         
         if frame is None:
             break
-
+        
+        time.sleep(0.01)
         # Get the embedding for the captured face
         embedding = get_face_embedding_from_frame(model, frame)
         
         if embedding is not None:
             # Add the embedding to FAISS index
-            add_embedding_to_faiss(index, embedding)
+            index.add(embedding, "Heri Santoso")
             print("Face embedding registered successfully!")
 
         # Ask if the user wants to register another face
@@ -114,9 +120,7 @@ def main():
         if cont.lower() != 'y':
             break
 
-    # Save the FAISS index
-    save_faiss_index(index)
-    print("FAISS index saved.")
+    
 
     # Step 2: Detect and recognize a face from FAISS index
     print("\n---- Face Recognition ----")

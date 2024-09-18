@@ -4,3 +4,4 @@ weights/Resnet50_Final.pth
 Pytorch_Retinaface-master.zip
 *.pyc
 face_embedding.index
+face_embedding.index.map_label
